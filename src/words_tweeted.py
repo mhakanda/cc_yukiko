@@ -35,7 +35,9 @@ sortedIndex = collections.OrderedDict(sorted(index.items()))
 #create output file
 fOut = open(input2,'w')
 for word, count in sortedIndex.iteritems():
-	sp = maxlen - len(word) + 6 #space for indent
+	#calc space for indent
+	sp = maxlen - len(word) - len(str(count)) + 7 
+	#output
 	fOut.write(word + (' ' * sp) + str(count) + '\n')
 
 fOut.close()
