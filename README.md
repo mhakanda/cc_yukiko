@@ -21,4 +21,4 @@ and generates a dynamic amount of space between words and numbers. This is done,
 
 - median_unique.py
 
-I considered this program would be excuted periodically and the median would update during each run. The program creates/updates log.txt in the tweet_input folder, and records the total number of tweets and words. Next time the program runs, it reads log file and re-calculates the median for only new tweets.  
+I considered this program would be executed periodically and the median would update during each run. The program creates/updates log.txt in the tweet_input folder, and records the total number of tweets and words. Next time the program runs, it reads log.txt file and re-calculates the median for only new tweets.  
