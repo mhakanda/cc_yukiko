@@ -1,52 +1,68 @@
-# example of program that calculates the median number of unique words per tweet.
 from sys import argv
-import time
+import math
+import datetime
 
-script, input1, input2 = argv
-lineCnt = 0
+script, input1, input2, input3 = argv
+newTwCnt = 0
 wordCnt = 0
+logTwCnt = 0
 
-def count_old_tweet(twAll):
-	global lineCnt, wordCnt
-	#count words from first tweet to the last calculated tweet
-	for line in twAll[0:oldTwCnt]:
-		tw = line.split()
-		wordCnt += len(tw) #number of words
-	lineCnt = oldTwCnt #number of tweets
+def calc_median(wordCnt, newTwCnt):
+	val = 0
+	val = float(wordCnt) / float(newTwCnt) 
+	val = '{0:g}'.format(math.floor(val*100)/100) #truncate to 2 decimal places
+	return str(val)
 
 def count_new_tweet(twAll,fOut):
-	global lineCnt, wordCnt
+	global newTwCnt, wordCnt
 	#count words of new tweets
-	for line in twAll[oldTwCnt:len(twAll)]:
-		tw = line.split()
-		wordCnt += len(tw)
-		lineCnt += 1
-		medianval = round(float(wordCnt) / float(lineCnt),1) #calc median
-		#print len(tw), wordCnt, lineCnt, medianval
-		fOut.write(str(medianval) + '\n')
+	for line in twAll[logTwCnt:len(twAll)]:
+		tw = line.split() #split sentences into words
+		tw = {}.fromkeys(tw).keys() #get only unique words
 
-#t0 = time.clock()
+		wordCnt += len(tw) #add the number of words
+		newTwCnt += 1 #increment the number of tweets
 
-#read tweets.txt
+		#calculate median
+		medVal = calc_median(wordCnt,newTwCnt)
+		#output result to ft2.txt
+		fOut.write(medVal + '\n') 
+	return medVal
+
+#open tweets.txt in read mode
 fIn = open(input1, 'r')
 twAll = fIn.readlines()
 fIn.close()
 
-#read/write ft2.txt
-fOut = open(input2,'a+')
-oldOut = fOut.readlines()
-oldTwCnt = len(oldOut) #number of tweets in the last run
+#open log.txt in read/write mode
+flog = open(input3,'a+')
+log = flog.readlines()
+llog = []
 
-#get total number of words until last run
-if oldTwCnt != 0: #existing results in ft2.txt
-	count_old_tweet(twAll) 
+#get infomation from log.txt
+if len(log) != 0:
+	llog = log[len(log) -1].rstrip() #remove enter code('\n')
+	llog = llog.split(',') #turn into list seperated with commas
+	wordCnt = int(llog[1]) #count number of words from last run 
+	logTwCnt = int(llog[2]) #count number of tweets from last run
+	logMedVal = str(llog[3]) #read median from last run
+	newTwCnt = int(llog[2]) #count number of new tweets
+else: #log.txt doesn't exist 
+	flog.write('Timestamp,Total Words,Total Tweets,Median\n')
+	
+#open ft2.txt in write mode
+fOut = open(input2,'a')
 
-#get mean number of word and write file  
-if (len(twAll) - oldTwCnt) != 0: #existing new tweet
-	count_new_tweet(twAll, fOut)
+#calculate median and write file  
+if (len(twAll) - logTwCnt) != 0: #when new tweets exist 
+	logMedVal = count_new_tweet(twAll, fOut)
 
 fOut.close()
 
-#t1 = time.clock()
+#get timestamp
+now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-#print("dt0="+str(t1-t0)+"[s]")
+#write log.txt file
+flog.write( now + ',' + str(wordCnt) + ',' + str(newTwCnt) + ',' + logMedVal + '\n')
+
+flog.close()
